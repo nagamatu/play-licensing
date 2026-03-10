@@ -58,6 +58,7 @@ import java.util.Set;
  * Must also provide the Base64-encoded RSA public key associated with your developer account. The
  * public key is obtainable from the publisher site.
  */
+@SuppressWarnings("ALL")
 public class LicenseChecker implements ServiceConnection {
     private static final String TAG = "LicenseChecker";
 
@@ -71,18 +72,18 @@ public class LicenseChecker implements ServiceConnection {
 
     private ILicensingService mService;
 
-    private PublicKey mPublicKey;
+    private final PublicKey mPublicKey;
     private final Context mContext;
     private final Policy mPolicy;
     /**
      * A handler for running tasks on a background thread. We don't want license processing to block
      * the UI thread.
      */
-    private Handler mHandler;
+    private final Handler mHandler;
     private final String mPackageName;
     private final String mVersionCode;
-    private final Set<LicenseValidator> mChecksInProgress = new HashSet<LicenseValidator>();
-    private final Queue<LicenseValidator> mPendingChecks = new LinkedList<LicenseValidator>();
+    private final Set<LicenseValidator> mChecksInProgress = new HashSet<>();
+    private final Queue<LicenseValidator> mPendingChecks = new LinkedList<>();
 
     /**
      * @param context a Context
@@ -135,7 +136,7 @@ public class LicenseChecker implements ServiceConnection {
      * source string: "com.android.vending.licensing.ILicensingService"
      * <p>
      * 
-     * @param callback
+     * @param callback:
      */
     public synchronized void checkAccess(LicenseCheckerCallback callback) {
         // If we have a valid recent LICENSED response, we can skip asking
