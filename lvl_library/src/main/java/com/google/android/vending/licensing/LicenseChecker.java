@@ -16,13 +16,17 @@
 
 package com.google.android.vending.licensing;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -41,6 +45,7 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -58,7 +63,7 @@ import java.util.Set;
  * Must also provide the Base64-encoded RSA public key associated with your developer account. The
  * public key is obtainable from the publisher site.
  */
-@SuppressWarnings("ALL")
+@SuppressWarnings("CallToPrintStackTrace")
 public class LicenseChecker implements ServiceConnection {
     private static final String TAG = "LicenseChecker";
 
@@ -203,6 +208,7 @@ public class LicenseChecker implements ServiceConnection {
      * page which enables them to gain access to the app. If no such URL is returned by the server, it
      * will go to the details page of the app in the Play Store.
      */
+    @SuppressWarnings("unused")
     public void followLastLicensingUrl(Context context) {
         String licensingUrl = mPolicy.getLicensingUrl();
         if (licensingUrl == null) {
@@ -241,16 +247,14 @@ public class LicenseChecker implements ServiceConnection {
 
     private class ResultListener extends ILicenseResultListener.Stub {
         private final LicenseValidator mValidator;
-        private Runnable mOnTimeout;
+        private final Runnable mOnTimeout;
 
         public ResultListener(LicenseValidator validator) {
             mValidator = validator;
-            mOnTimeout = new Runnable() {
-                public void run() {
-                    Log.i(TAG, "Check timed out.");
-                    handleServiceConnectionError(mValidator);
-                    finishCheck(mValidator);
-                }
+            mOnTimeout = () -> {
+                Log.i(TAG, "Check timed out.");
+                handleServiceConnectionError(mValidator);
+                finishCheck(mValidator);
             };
             startTimeout();
         }
@@ -263,46 +267,45 @@ public class LicenseChecker implements ServiceConnection {
         // either this or the timeout runs.
         public void verifyLicense(final int responseCode, final String signedData,
                 final String signature) {
-            mHandler.post(new Runnable() {
-                public void run() {
-                    Log.i(TAG, "Received response.");
-                    // Make sure it hasn't already timed out.
-                    if (mChecksInProgress.contains(mValidator)) {
-                        clearTimeout();
-                        mValidator.verify(mPublicKey, responseCode, signedData, signature);
-                        finishCheck(mValidator);
-                    }
-                    if (DEBUG_LICENSE_ERROR) {
-                        boolean logResponse;
-                        String stringError = null;
-                        switch (responseCode) {
-                            case ERROR_CONTACTING_SERVER:
-                                logResponse = true;
-                                stringError = "ERROR_CONTACTING_SERVER";
-                                break;
-                            case ERROR_INVALID_PACKAGE_NAME:
-                                logResponse = true;
-                                stringError = "ERROR_INVALID_PACKAGE_NAME";
-                                break;
-                            case ERROR_NON_MATCHING_UID:
-                                logResponse = true;
-                                stringError = "ERROR_NON_MATCHING_UID";
-                                break;
-                            default:
-                                logResponse = false;
-                        }
-
-                        if (logResponse) {
-                            String android_id = Secure.getString(mContext.getContentResolver(),
-                                    Secure.ANDROID_ID);
-                            Date date = new Date();
-                            Log.d(TAG, "Server Failure: " + stringError);
-                            Log.d(TAG, "Android ID: " + android_id);
-                            Log.d(TAG, "Time: " + date.toGMTString());
-                        }
-                    }
-
+            mHandler.post(() -> {
+                Log.i(TAG, "Received response.");
+                // Make sure it hasn't already timed out.
+                if (mChecksInProgress.contains(mValidator)) {
+                    clearTimeout();
+                    mValidator.verify(mPublicKey, responseCode, signedData, signature);
+                    finishCheck(mValidator);
                 }
+                if (DEBUG_LICENSE_ERROR) {
+                    boolean logResponse;
+                    String stringError = null;
+                    switch (responseCode) {
+                        case ERROR_CONTACTING_SERVER:
+                            logResponse = true;
+                            stringError = "ERROR_CONTACTING_SERVER";
+                            break;
+                        case ERROR_INVALID_PACKAGE_NAME:
+                            logResponse = true;
+                            stringError = "ERROR_INVALID_PACKAGE_NAME";
+                            break;
+                        case ERROR_NON_MATCHING_UID:
+                            logResponse = true;
+                            stringError = "ERROR_NON_MATCHING_UID";
+                            break;
+                        default:
+                            logResponse = false;
+                    }
+
+                    if (logResponse) {
+                        @SuppressLint("HardwareIds")
+                        String android_id = Secure.getString(mContext.getContentResolver(),
+                                Secure.ANDROID_ID);
+                        Date date = new Date();
+                        Log.d(TAG, "Server Failure: " + stringError);
+                        Log.d(TAG, "Android ID: " + android_id);
+                        Log.d(TAG, "Time: " + DateFormat.getDateTimeInstance().format(date));
+                    }
+                }
+
             });
         }
 
@@ -379,17 +382,35 @@ public class LicenseChecker implements ServiceConnection {
     /**
      * Get version code for the application package name.
      *
-     * @param context
+     * @param context:
      * @param packageName application package name
      * @return the version code or empty string if package not found
      */
     private static String getVersionCode(Context context, String packageName) {
         try {
-            return String.valueOf(
-                    context.getPackageManager().getPackageInfo(packageName, 0).versionCode);
+            PackageInfo pi;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                pi = context.getPackageManager().getPackageInfo(packageName,
+                        PackageManager.PackageInfoFlags.of(0));
+            } else {
+                pi = context.getPackageManager().getPackageInfo(packageName, 0);
+            }
+            return String.valueOf(getVersionCode(pi));
         } catch (NameNotFoundException e) {
             Log.e(TAG, "Package not found. could not get version code.");
             return "";
+        }
+    }
+
+    /**
+     * Compatibility wrapper for PackageInfo.versionCode / getLongVersionCode
+     */
+    @SuppressWarnings("deprecation")
+    private static long getVersionCode(PackageInfo pi) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            return pi.getLongVersionCode();
+        } else {
+            return pi.versionCode;
         }
     }
 }

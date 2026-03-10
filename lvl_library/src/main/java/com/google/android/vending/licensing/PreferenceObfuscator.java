@@ -20,7 +20,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 /**
- * An wrapper for SharedPreferences that transparently performs data obfuscation.
+ * A wrapper for SharedPreferences that transparently performs data obfuscation.
  */
 public class PreferenceObfuscator {
 
