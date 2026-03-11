@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = 'com.google.android.vending.licensing'
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         minSdk 21
@@ -45,7 +45,7 @@ dependencies {
     
     // Unit Testing dependencies
     testImplementation libs.junit
-    testImplementation 'org.mockito:mockito-core:5.11.0'
-    testImplementation 'org.robolectric:robolectric:4.12.1'
-    testImplementation 'androidx.test:core:1.6.1'
+    testImplementation libs.mockito.core
+    testImplementation libs.robolectric
+    testImplementation libs.androidx.core
 }
