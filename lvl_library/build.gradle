@@ -45,7 +45,10 @@ dependencies {
     
     // Unit Testing dependencies
     testImplementation libs.junit
-    testImplementation libs.mockito.core
-    testImplementation libs.robolectric
-    testImplementation libs.androidx.core
+    //noinspection UseTomlInstead
+    testImplementation 'org.mockito:mockito-core:5.22.0'
+    //noinspection UseTomlInstead
+    testImplementation 'org.robolectric:robolectric:4.16.1'
+    //noinspection UseTomlInstead
+    testImplementation 'androidx.test:core:1.7.0'
 }
