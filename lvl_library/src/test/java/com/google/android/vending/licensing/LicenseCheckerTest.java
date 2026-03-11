@@ -35,13 +35,11 @@ public class LicenseCheckerTest {
 
     @Test
     public void testCheckAccess_CachedAllow() {
-        // Policy がすでに許可（キャッシュあり）を返している場合のテスト
         when(mMockPolicy.allowAccess()).thenReturn(true);
 
         LicenseChecker checker = new LicenseChecker(mContext, mMockPolicy, BASE64_PUBLIC_KEY);
         checker.checkAccess(mMockCallback);
 
-        // キャッシュがあれば、即座に allow が呼ばれるはず
         verify(mMockCallback).allow(Policy.LICENSED);
         checker.onDestroy();
     }

@@ -386,7 +386,6 @@ public class LicenseChecker implements ServiceConnection {
      * @param packageName application package name
      * @return the version code or empty string if package not found
      */
-    @SuppressWarnings("deprecation")
     private static String getVersionCode(Context context, String packageName) {
         try {
             PackageInfo pi;

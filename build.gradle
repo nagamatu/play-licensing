@@ -5,7 +5,8 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath libs.gradle
+        //noinspection UseTomlInstead
+        classpath 'com.android.tools.build:gradle:9.1.0'
     }
 }
 

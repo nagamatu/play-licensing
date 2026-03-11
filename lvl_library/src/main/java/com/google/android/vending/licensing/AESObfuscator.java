@@ -52,7 +52,7 @@ public class AESObfuscator implements Obfuscator {
         try {
             SecretKeyFactory factory = SecretKeyFactory.getInstance(KEYGEN_ALGORITHM);
             KeySpec keySpec =
-                new PBEKeySpec((applicationId + deviceId).toCharArray(), salt, 1024, 256);
+                new PBEKeySpec((applicationId + deviceId).toCharArray(), salt, 10000, 256);
             SecretKey tmp = factory.generateSecret(keySpec);
             mSecret = new SecretKeySpec(tmp.getEncoded(), "AES");
         } catch (GeneralSecurityException e) {

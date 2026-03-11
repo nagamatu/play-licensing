@@ -41,10 +41,12 @@ android {
 }
 
 dependencies {
-    implementation libs.androidx.annotation.jvm
+    //noinspection UseTomlInstead
+    implementation 'androidx.annotation:annotation-jvm:1.9.1'
     
     // Unit Testing dependencies
-    testImplementation libs.junit
+    //noinspection UseTomlInstead
+    testImplementation 'junit:junit:4.13.2'
     //noinspection UseTomlInstead
     testImplementation 'org.mockito:mockito-core:5.22.0'
     //noinspection UseTomlInstead
