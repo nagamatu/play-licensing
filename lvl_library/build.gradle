@@ -1,19 +1,56 @@
-apply plugin: 'com.android.library'
+plugins {
+    id 'com.android.library'
+}
 
 android {
-    namespace 'com.google.android.vending.licensing'
-    compileSdk 34
+    namespace = 'com.google.android.vending.licensing'
+    compileSdk = 36
+
     defaultConfig {
-        minSdk 4
-        targetSdk 34
+        minSdk 21
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        consumerProguardFiles 'proguard-rules.txt'
     }
+
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.txt'
         }
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
     buildFeatures {
         aidl true
     }
+    testOptions {
+        targetSdk 34
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+    lint {
+        targetSdk 34
+    }
+}
+
+dependencies {
+    //noinspection UseTomlInstead
+    implementation 'androidx.annotation:annotation-jvm:1.9.1'
+    
+    // Unit Testing dependencies
+    //noinspection UseTomlInstead
+    testImplementation 'junit:junit:4.13.2'
+    //noinspection UseTomlInstead
+    testImplementation 'org.mockito:mockito-core:5.22.0'
+    //noinspection UseTomlInstead
+    testImplementation 'org.robolectric:robolectric:4.16.1'
+    //noinspection UseTomlInstead
+    testImplementation 'androidx.test:core:1.7.0'
 }

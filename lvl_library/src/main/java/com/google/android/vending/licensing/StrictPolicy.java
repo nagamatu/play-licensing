@@ -83,7 +83,7 @@ public class StrictPolicy implements Policy {
 
     private Map<String, String> decodeExtras(
         com.google.android.vending.licensing.ResponseData rawData) {
-        Map<String, String> results = new HashMap<String, String>();
+        Map<String, String> results = new HashMap<>();
         if (rawData == null) {
             return results;
         }

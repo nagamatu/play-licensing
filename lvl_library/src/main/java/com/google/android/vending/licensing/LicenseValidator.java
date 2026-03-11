@@ -86,6 +86,7 @@ class LicenseValidator {
      * @param signedData signed data from server
      * @param signature server signature
      */
+    @SuppressWarnings("ConstantValue")
     public void verify(PublicKey publicKey, int responseCode, String signedData, String signature) {
         String userId = null;
         // Skip signature check for unsuccessful requests
@@ -205,8 +206,8 @@ class LicenseValidator {
     /**
      * Confers with policy and calls appropriate callback method.
      *
-     * @param response
-     * @param rawData
+     * @param response:
+     * @param rawData:
      */
     private void handleResponse(int response, ResponseData rawData) {
         // Update policy data and increment retry counter (if needed)

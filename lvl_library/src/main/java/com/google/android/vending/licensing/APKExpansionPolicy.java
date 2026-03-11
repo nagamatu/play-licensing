@@ -27,6 +27,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Vector;
 
@@ -68,10 +69,10 @@ public class APKExpansionPolicy implements Policy {
     private long mLastResponseTime = 0;
     private int mLastResponse;
     private String mLicensingUrl;
-    private PreferenceObfuscator mPreferences;
-    private Vector<String> mExpansionURLs = new Vector<String>();
-    private Vector<String> mExpansionFileNames = new Vector<String>();
-    private Vector<Long> mExpansionFileSizes = new Vector<Long>();
+    private final PreferenceObfuscator mPreferences;
+    private final Vector<String> mExpansionURLs = new Vector<>();
+    private final Vector<String> mExpansionFileNames = new Vector<>();
+    private final Vector<Long> mExpansionFileSizes = new Vector<>();
 
     /**
      * The design of the protocol supports n files. Currently the market can
@@ -162,7 +163,7 @@ public class APKExpansionPolicy implements Policy {
                     setExpansionFileName(index, extras.get(key));
                 } else if (key.startsWith("FILE_SIZE")) {
                     int index = Integer.parseInt(key.substring("FILE_SIZE".length())) - 1;
-                    setExpansionFileSize(index, Long.parseLong(extras.get(key)));
+                    setExpansionFileSize(index, Long.parseLong(Objects.requireNonNull(extras.get(key))));
                 }
             }
         } else if (response == Policy.NOT_LICENSED) {
