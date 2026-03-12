@@ -17,16 +17,11 @@
 package com.google.android.vending.licensing;
 
 
-import com.google.android.vending.licensing.AESObfuscator;
-import com.google.android.vending.licensing.Policy;
-import com.google.android.vending.licensing.ResponseData;
-import com.google.android.vending.licensing.ServerManagedPolicy;
-
 import android.content.Context;
 import android.provider.Settings;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.filters.SmallTest;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +47,7 @@ public class ServerManagedPolicyTest {
             104, -12, 112, 82, -85, -10, -11, 61, 15, 54, 44, -66, -117, -89, -64, 110, -53, 123, 33
         };
 
-        Context ctx = InstrumentationRegistry.getTargetContext();
+        Context ctx = InstrumentationRegistry.getInstrumentation().getTargetContext();
         String deviceId = Settings.Secure.getString(
                 ctx.getApplicationContext().getContentResolver(),
                 Settings.Secure.ANDROID_ID);
@@ -70,9 +65,9 @@ public class ServerManagedPolicyTest {
                 "ADf8I4ajjgc1P5ZI1S1DN/YIPIUNPECLrg==|1279578835423:VT=11&GT=22&GR=33";
         p.processServerResponse(Policy.LICENSED,
                 ResponseData.parse(sampleResponse));
-        assertEquals(11l, p.getValidityTimestamp());
-        assertEquals(22l, p.getRetryUntil());
-        assertEquals(33l, p.getMaxRetries());
+        assertEquals(11L, p.getValidityTimestamp());
+        assertEquals(22L, p.getRetryUntil());
+        assertEquals(33L, p.getMaxRetries());
     }
 
     /**
@@ -85,15 +80,15 @@ public class ServerManagedPolicyTest {
         // Sanity test
         p.processServerResponse(Policy.LICENSED,
                 ResponseData.parse(sampleResponse));
-        assertTrue(0l != p.getValidityTimestamp());
-        assertTrue(0l != p.getRetryUntil());
-        assertTrue(0l != p.getMaxRetries());
+        assertTrue(0L != p.getValidityTimestamp());
+        assertTrue(0L != p.getRetryUntil());
+        assertTrue(0L != p.getMaxRetries());
 
         // Actual test
         p.processServerResponse(Policy.NOT_LICENSED, null);
-        assertEquals(0l, p.getValidityTimestamp());
-        assertEquals(0l, p.getRetryUntil());
-        assertEquals(0l, p.getMaxRetries());
+        assertEquals(0L, p.getValidityTimestamp());
+        assertEquals(0L, p.getRetryUntil());
+        assertEquals(0L, p.getMaxRetries());
     }
 
     /**
@@ -101,6 +96,7 @@ public class ServerManagedPolicyTest {
      */
     @Test
     public void licensingUrlExtraParsed() {
+        @SuppressWarnings("SpellCheckingInspection")
         String sampleResponse = "0|1579380448|com.example.android.market.licensing|1|" +
             "ADf8I4ajjgc1P5ZI1S1DN/YIPIUNPECLrg==|1279578835423:" +
             "LU=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.example.android.market.licensing";
@@ -132,9 +128,9 @@ public class ServerManagedPolicyTest {
                 "%20friends&GT=2&GR=3";
         p.processServerResponse(Policy.LICENSED,
                 ResponseData.parse(sampleResponse));
-        assertEquals(1l, p.getValidityTimestamp());
-        assertEquals(2l, p.getRetryUntil());
-        assertEquals(3l, p.getMaxRetries());
+        assertEquals(1L, p.getValidityTimestamp());
+        assertEquals(2L, p.getRetryUntil());
+        assertEquals(3L, p.getMaxRetries());
     }
 
 }
