@@ -109,24 +109,30 @@ public class MainActivity extends AppCompatActivity {
         @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            assert getArguments() != null;
-            boolean bRetry = getArguments().getBoolean(ARG_RETRY);
-            MainActivity activity = (MainActivity) getActivity();
+            final Bundle arguments = getArguments();
+            final android.app.Activity activity = getActivity();
 
-            assert activity != null;
-            return new AlertDialog.Builder(activity)
-                .setTitle(R.string.unlicensed_dialog_title)
-                .setMessage(bRetry ? R.string.unlicensed_dialog_retry_body : R.string.unlicensed_dialog_body)
-                .setPositiveButton(bRetry ? R.string.retry_button : R.string.restore_access_button,
-                    (dialog, which) -> {
-                        if (bRetry) {
-                            activity.doCheck();
-                        } else {
-                            activity.mChecker.followLastLicensingUrl(activity);
-                        }
-                    })
-                .setNegativeButton(R.string.quit_button, (dialog, which) -> activity.finish())
-                .create();
+            if (arguments == null || !(activity instanceof MainActivity)) {
+                // If the fragment is not properly set up or not attached to the expected activity,
+                // we can't create the dialog. Returning a default dialog is a safe fallback.
+                return super.onCreateDialog(savedInstanceState);
+            }
+            final MainActivity mainActivity = (MainActivity) activity;
+
+            boolean bRetry = arguments.getBoolean(ARG_RETRY);
+            return new AlertDialog.Builder(mainActivity)
+                    .setTitle(R.string.unlicensed_dialog_title)
+                    .setMessage(bRetry ? R.string.unlicensed_dialog_retry_body : R.string.unlicensed_dialog_body)
+                    .setPositiveButton(bRetry ? R.string.retry_button : R.string.restore_access_button,
+                            (dialog, which) -> {
+                                if (bRetry) {
+                                    mainActivity.doCheck();
+                                } else {
+                                    mainActivity.mChecker.followLastLicensingUrl(mainActivity);
+                                }
+                            })
+                    .setNegativeButton(R.string.quit_button, (dialog, which) -> mainActivity.finish())
+                    .create();
         }
     }
 
